@@ -1,0 +1,92 @@
+﻿version: '3.8'
+
+services:
+  
+
+  # ===== DeepEval Service (Metrics Calculation) =====
+  deepeval:
+    build:
+      context: ./microservices/deepeval
+      dockerfile: Dockerfile
+    container_name: deepeval_service
+    restart: unless-stopped
+    environment:
+      - ENV=production
+      - GRPC_PORT=50051
+      - LOG_LEVEL=INFO
+      - OPENAI_API_KEY=dir{OPENAI_API_KEY}
+      - DEEPEVAL_TELEMETRY_OPT_OUT=YES
+    env_file:
+      - .env.shared
+      - ./microservices/deepeval/.env
+    ports:
+      - "50051:50051"  # gRPC port
+      - "8001:8001"    # Health check HTTP port
+    depends_on:
+      - mongodb
+    networks:
+      - evaluation_network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+  # ===== Evaluator Service (Main Orchestrator) =====
+  evaluator:
+    build:
+      context: ./microservices/evaluator
+      dockerfile: Dockerfile  
+    container_name: evaluator_service
+    restart: unless-stopped
+    environment:
+      - ENV=production
+      - HTTP_PORT=8000
+      - LOG_LEVEL=INFO
+      - MONGO_URI="mongodb://localhost:27017"
+      - DB_NAME=evaluation_db
+      - DEEPEVAL_GRPC_HOST=deepeval:50051
+      - RESULTS_COLLECTION=results
+      - STATUS_COLLECTION=status  
+      - CONFIG_COLLECTION=config
+      - METRICS_COLLECTION=metrics
+    env_file:
+      - .env.shared
+      - ./microservices/evaluator/.env
+    ports:
+      - "8000:8000"    # FastAPI HTTP port
+    depends_on:
+      - deepeval
+    networks:
+      - evaluation_network
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+
+  # ===== MongoDB Admin Interface (Optional) =====
+  mongo-express:
+    image: mongo-express:1.0.0
+    container_name: mongo_admin
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password123@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - evaluation_network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  evaluation_network:
+    driver: bridge

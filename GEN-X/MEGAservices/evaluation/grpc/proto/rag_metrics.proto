@@ -1,0 +1,51 @@
+﻿syntax = "proto3";
+
+package evaluation.rag;
+
+import "common.proto";
+
+option go_package = "github.com/genx/evaluation/grpc/rag";
+
+// RAG Metrics Service - Internal service called by main DeepEval service
+service RAGMetricsService {
+  rpc CalculateAnswerRelevancy(AnswerRelevancyRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateFaithfulness(FaithfulnessRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateContextualPrecision(ContextualPrecisionRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateContextualRecall(ContextualRecallRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateContextualRelevancy(ContextualRelevancyRequest) returns (evaluation.common.MetricResponse);
+}
+
+message AnswerRelevancyRequest {
+  string question = 1;
+  string answer = 2;
+  string context = 3;
+  map<string, string> config = 4;
+}
+
+message FaithfulnessRequest {
+  string question = 1;
+  string answer = 2;
+  string context = 3;
+  map<string, string> config = 4;
+}
+
+message ContextualPrecisionRequest {
+  string question = 1;
+  string expected_answer = 2;
+  string context = 3;
+  string actual_answer = 4;
+  map<string, string> config = 5;
+}
+
+message ContextualRecallRequest {
+  string question = 1;
+  string expected_answer = 2;
+  string context = 3;
+  map<string, string> config = 4;
+}
+
+message ContextualRelevancyRequest {
+  string question = 1;
+  string context = 2;
+  map<string, string> config = 3;
+}

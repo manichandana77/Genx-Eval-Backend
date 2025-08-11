@@ -1,0 +1,35 @@
+﻿syntax = "proto3";
+
+package evaluation.safety;
+
+import "common.proto";
+
+option go_package = "github.com/genx/evaluation/grpc/safety";
+
+// Safety Metrics Service - Internal service for bias, toxicity, hallucination
+service SafetyMetricsService {
+  rpc CalculateBias(BiasRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateToxicity(ToxicityRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateHallucination(HallucinationRequest) returns (evaluation.common.MetricResponse);
+}
+
+message BiasRequest {
+  string input_text = 1;
+  string output_text = 2;
+  repeated string bias_categories = 3; // ["gender", "race", "religion", etc.]
+  map<string, string> config = 4;
+}
+
+message ToxicityRequest {
+  string text = 1;
+  double threshold = 2;
+  map<string, string> config = 3;
+}
+
+message HallucinationRequest {
+  string question = 1;
+  string answer = 2;
+  string context = 3;
+  string ground_truth = 4;
+  map<string, string> config = 5;
+}

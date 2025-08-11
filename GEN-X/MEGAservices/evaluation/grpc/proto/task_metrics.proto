@@ -1,0 +1,51 @@
+﻿syntax = "proto3";
+
+package evaluation.task;
+
+import "common.proto";
+
+option go_package = "github.com/genx/evaluation/grpc/task";
+
+// Task-Specific Metrics Service
+service TaskMetricsService {
+  rpc CalculateSummarization(SummarizationRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateClassification(ClassificationRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateGeneration(GenerationRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateConversation(ConversationRequest) returns (evaluation.common.MetricResponse);
+}
+
+message SummarizationRequest {
+  string original_text = 1;
+  string summary = 2;
+  string reference_summary = 3;
+  repeated string aspects = 4; // ["coherence", "consistency", "fluency", "relevance"]
+  map<string, string> config = 5;
+}
+
+message ClassificationRequest {
+  string input_text = 1;
+  string predicted_label = 2;
+  string actual_label = 3;
+  repeated string all_labels = 4;
+  map<string, string> config = 5;
+}
+
+message GenerationRequest {
+  string prompt = 1;
+  string generated_text = 2;
+  string reference_text = 3;
+  repeated string quality_aspects = 4; // ["creativity", "coherence", "relevance"]
+  map<string, string> config = 5;
+}
+
+message ConversationRequest {
+  repeated ConversationTurn turns = 1;
+  repeated string evaluation_aspects = 2; // ["coherence", "engagement", "consistency"]
+  map<string, string> config = 3;
+}
+
+message ConversationTurn {
+  string speaker = 1; // "user" or "assistant"
+  string message = 2;
+  int32 turn_number = 3;
+}

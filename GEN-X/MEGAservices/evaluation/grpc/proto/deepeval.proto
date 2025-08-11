@@ -1,0 +1,72 @@
+﻿syntax = "proto3";
+
+package evaluation.deepeval;
+
+import "common.proto";
+
+option go_package = "github.com/genx/evaluation/grpc/deepeval";
+
+// Main DeepEval Service - Entry point for all metrics calculation
+// 🎯 Evaluator service calls THIS service for metric calculations
+
+service DeepEvalService {
+  // Single metric calculations
+  rpc CalculateSingleMetric(SingleMetricRequest) returns (evaluation.common.MetricResponse);
+  
+  // Batch processing - MAIN METHOD used by Evaluator service
+  rpc CalculateBatchMetrics(BatchMetricsRequest) returns (BatchMetricsResponse);
+  
+  // Get available metrics
+  rpc GetAvailableMetrics(GetMetricsRequest) returns (AvailableMetricsResponse);
+  
+  // Health check
+  rpc HealthCheck(evaluation.common.HealthCheckRequest) returns (evaluation.common.HealthCheckResponse);
+}
+
+message SingleMetricRequest {
+  string metric_name = 1;
+  evaluation.common.EvaluationItem evaluation_data = 2;
+  map<string, string> config = 3;
+}
+
+// 🔥 PRIMARY REQUEST - Evaluator → DeepEval communication
+message BatchMetricsRequest {
+  repeated evaluation.common.BatchItem evaluation_items = 1;
+  repeated string metrics = 2;  // ["answer_relevancy", "faithfulness", "bias"]
+  string process_id = 3;
+  string user_id = 4;
+  map<string, string> global_config = 5;
+}
+
+// 🔥 PRIMARY RESPONSE - DeepEval → Evaluator communication  
+message BatchMetricsResponse {
+  repeated evaluation.common.BatchItemResult results = 1;
+  bool success = 2;
+  string error_message = 3;
+  int32 total_processed = 4;
+  int32 successful_count = 5;
+  int32 failed_count = 6;
+  double total_execution_time_ms = 7;
+  map<string, string> summary_stats = 8;
+}
+
+message GetMetricsRequest {
+  string category = 1; // "rag", "safety", "task", "custom", "all"
+}
+
+message AvailableMetricsResponse {
+  map<string, MetricCategory> metrics_by_category = 1;
+  repeated string all_metrics = 2;
+}
+
+message MetricCategory {
+  repeated MetricInfo metrics = 1;
+  string description = 2;
+}
+
+message MetricInfo {
+  string name = 1;
+  string description = 2;
+  repeated string required_fields = 3;
+  map<string, string> default_config = 4;
+}

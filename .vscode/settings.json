@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./GEN-X/MEGAservices/evaluation/microservices/deepeval/src/grpc/generated/python"
+    ]
+}

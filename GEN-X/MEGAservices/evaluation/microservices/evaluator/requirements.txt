@@ -1,0 +1,44 @@
+﻿# FastAPI and async dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# gRPC client dependencies
+grpcio==1.60.0
+grpcio-tools==1.60.0
+protobuf==4.25.0
+
+# Database dependencies
+motor==3.3.2
+pymongo==4.6.0
+
+# HTTP client for model API calls
+httpx==0.25.2
+requests==2.31.0
+
+# File processing
+PyYAML==6.0.1
+pandas==2.1.4
+numpy==1.25.2
+
+# Logging and monitoring
+structlog==23.2.0
+
+# File handling
+aiofiles==23.2.1
+python-multipart==0.0.6
+
+# Date and time
+python-dateutil==2.8.2
+
+# Environment
+python-dotenv==1.0.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# UUID and path utilities
+uuid==1.30
+pathlib2==2.3.7

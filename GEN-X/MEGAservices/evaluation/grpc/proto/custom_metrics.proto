@@ -1,0 +1,46 @@
+﻿syntax = "proto3";
+
+package evaluation.custom;
+
+import "common.proto";
+
+option go_package = "github.com/genx/evaluation/grpc/custom";
+
+// Custom Metrics Service - GEval and domain-specific metrics
+service CustomMetricsService {
+  rpc CalculateGEval(GEvalRequest) returns (evaluation.common.MetricResponse);
+  rpc CalculateCustomMetric(CustomMetricRequest) returns (evaluation.common.MetricResponse);
+  rpc RegisterCustomMetric(RegisterMetricRequest) returns (RegisterMetricResponse);
+}
+
+message GEvalRequest {
+  string name = 1;
+  string criteria = 2;
+  repeated string evaluation_params = 3; // ["ACTUAL_OUTPUT", "EXPECTED_OUTPUT", etc.]
+  string input = 4;
+  string actual_output = 5;
+  string expected_output = 6;
+  string context = 7;
+  map<string, string> config = 8;
+}
+
+message CustomMetricRequest {
+  string metric_id = 1;
+  string metric_name = 2;
+  map<string, string> input_data = 3;
+  map<string, string> config = 4;
+}
+
+message RegisterMetricRequest {
+  string metric_name = 1;
+  string description = 2;
+  repeated string required_fields = 3;
+  string evaluation_logic = 4; // Python code or reference
+  map<string, string> default_config = 5;
+}
+
+message RegisterMetricResponse {
+  bool success = 1;
+  string metric_id = 2;
+  string error_message = 3;
+}
